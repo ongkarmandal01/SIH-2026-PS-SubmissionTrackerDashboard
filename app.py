@@ -132,6 +132,54 @@ def update_cache():
         return False, str(exc)
 
 
+@app.route("/test-sih")
+def test_sih():
+    session = requests.Session()
+
+    headers = {
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/153.0.0.0 Safari/537.36"
+        ),
+        "Accept": (
+            "text/html,application/xhtml+xml,"
+            "application/xml;q=0.9,*/*;q=0.8"
+        ),
+        "Accept-Language": "en-IN,en;q=0.9",
+    }
+
+    session.headers.update(headers)
+
+    try:
+        home = session.get(
+            "https://www.sih.gov.in/",
+            timeout=30
+        )
+
+        ps = session.get(
+            "https://www.sih.gov.in/sih2026PS",
+            headers={
+                "Referer": "https://www.sih.gov.in/"
+            },
+            timeout=30
+        )
+
+        return jsonify({
+            "home_status": home.status_code,
+            "ps_status": ps.status_code,
+            "ps_url": ps.url,
+            "ps_length": len(ps.text),
+            "cookies": list(session.cookies.keys()),
+            "first_200_chars": ps.text[:200]
+        })
+
+    except Exception as e:
+        return jsonify({
+            "error": repr(e)
+        }), 500
+
+
 @app.route("/")
 def index():
     """
