@@ -221,11 +221,9 @@ def refresh():
             data_cache["last_fetched"]
     })
 
+update_cache()
 
 if __name__ == "__main__":
-
-    # Fetch data once when Flask starts.
-    update_cache()
 
     app.run(
         host="0.0.0.0",
