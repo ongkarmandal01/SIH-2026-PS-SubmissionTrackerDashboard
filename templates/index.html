@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calm Retreat: Nature-Inspired Dashboard — SIH 2026</title>
+
+    <!-- Google Fonts: Plus Jakarta Sans, Roboto, and Material Symbols Rounded -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+
+    <!-- External MD3 Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <!-- MD3 Top App Bar -->
+    <header class="top-app-bar">
+        <div class="top-app-bar-inner">
+            <div class="brand-wrapper">
+                <div class="brand-icon-box">
+                    <span class="material-symbols-rounded filled">spa</span>
+                </div>
+                <div class="brand-text">
+                    <h1>Calm Retreat Dashboard</h1>
+                    <p>Nature-Inspired • SIH 2026 Submission Monitor</p>
+                </div>
+            </div>
+
+            <div class="md3-status-chip">
+                <span id="statusDot" class="status-dot"></span>
+                <span id="statusText">Loading data...</span>
+            </div>
+        </div>
+    </header>
+
+
+    <main class="container">
+
+        <!-- MD3 Hero / Banner Card -->
+        <section class="hero-banner">
+            <div class="hero-content">
+                <h2>
+                    Problem Statement 26089
+                    <span class="target-pill">Target</span>
+                </h2>
+                <p>Live tracking of submitted ideas against the maximum threshold of 500 submissions.</p>
+            </div>
+        </section>
+
+        <!-- MD3 Error Banner -->
+        <div id="errorBox" class="md3-banner-error" style="display: none;">
+            <span class="material-symbols-rounded">error</span>
+            <span id="errorMessageText"></span>
+        </div>
+
+        <!-- MD3 KPI Metric Cards -->
+        <section class="cards-grid">
+
+            <div class="md3-card highlight">
+                <div class="card-header-row">
+                    <span class="card-label">PS 26089 Submissions</span>
+                    <div class="card-icon">
+                        <span class="material-symbols-rounded filled">leaderboard</span>
+                    </div>
+                </div>
+                <div class="card-value" id="ps89Count">—</div>
+                <div class="card-sub">Current total submissions</div>
+            </div>
+
+            <div class="md3-card">
+                <div class="card-header-row">
+                    <span class="card-label">Target Submissions</span>
+                    <div class="card-icon">
+                        <span class="material-symbols-rounded">flag</span>
+                    </div>
+                </div>
+                <div class="card-value">500</div>
+                <div class="card-sub">Maximum target capacity</div>
+            </div>
+
+            <div class="md3-card">
+                <div class="card-header-row">
+                    <span class="card-label">Target Completion</span>
+                    <div class="card-icon">
+                        <span class="material-symbols-rounded">donut_large</span>
+                    </div>
+                </div>
+                <div class="card-value" id="completion">—</div>
+                <div class="card-sub">Of PS 26089 capacity</div>
+            </div>
+
+            <div class="md3-card">
+                <div class="card-header-row">
+                    <span class="card-label">Problem Statements</span>
+                    <div class="card-icon">
+                        <span class="material-symbols-rounded">dataset</span>
+                    </div>
+                </div>
+                <div class="card-value" id="totalPS">—</div>
+                <div class="card-sub">Total statements indexed</div>
+            </div>
+
+        </section>
+
+
+        <!-- MD3 Progress Card & Toolbar -->
+        <section class="progress-section">
+
+            <div class="progress-header">
+                <div class="progress-title-group">
+                    <span class="material-symbols-rounded" style="color: var(--md-sys-color-primary);">trending_up</span>
+                    <span class="progress-title">PS 26089 Submission Progress</span>
+                </div>
+                <span class="progress-percent-badge" id="progressPercent">0%</span>
+            </div>
+
+            <div class="md3-progress-track">
+                <div id="progressFill" class="progress-fill"></div>
+            </div>
+
+            <div class="toolbar">
+                <button id="refreshButton" class="md3-btn-filled" onclick="refreshData()">
+                    <span id="refreshIcon" class="material-symbols-rounded btn-icon">sync</span>
+                    <span id="refreshBtnText">Refresh Data</span>
+                </button>
+
+                <div class="last-fetched-chip">
+                    <span class="material-symbols-rounded">schedule</span>
+                    <span>Last fetched: <strong id="lastFetched">—</strong></span>
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- MD3 Table Section -->
+        <section class="table-card">
+
+            <div class="table-top-bar">
+                <div class="table-title-area">
+                    <h3>All Problem Statements</h3>
+                    <p>Ranked by number of submissions in ascending order</p>
+                </div>
+
+                <div class="md3-search-box">
+                    <span class="material-symbols-rounded search-icon">search</span>
+                    <input id="searchInput" class="md3-search-input" type="text" placeholder="Search Problem Statement ID..." autocomplete="off">
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="rank-cell">Rank</th>
+                            <th>Problem Statement ID</th>
+                            <th>Submissions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="tableBody">
+                        <tr>
+                            <td colspan="3" class="loading">
+                                <span class="material-symbols-rounded spinning">sync</span>
+                                Fetching live data from SIH portal...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <footer class="footer">
+        <p>Calm Retreat: Nature-Inspired Dashboard • Smart India Hackathon (SIH) 2026</p>
+    </footer>
+
+
+    <script>
+
+        /* ── Configuration ─────────────────────────────────── */
+
+        const TARGET_PS = "26089";
+        const TARGET_SUBMISSIONS = 500;
+
+
+        /* ── Application State ─────────────────────────────── */
+
+        let allResults = [];
+
+
+        /* ── Dashboard Loader ──────────────────────────────── */
+
+        async function loadDashboard() {
+            try {
+                const response = await fetch("/api/data");
+                const data = await response.json();
+
+                // Store globally so search can filter.
+                allResults = data.problem_statements || [];
+
+                // PS 26089 counter.
+                const psCount = data.ps89_submissions || 0;
+                document.getElementById("ps89Count").textContent =
+                    psCount.toLocaleString("en-IN");
+
+                // Percentage card.
+                const percentage = data.ps89_percentage || 0;
+                document.getElementById("completion").textContent =
+                    percentage + "%";
+
+                // Total PS count card.
+                const totalCount = data.total_problem_statements || 0;
+                document.getElementById("totalPS").textContent =
+                    totalCount.toLocaleString("en-IN");
+
+                // Progress bar + label.
+                const pct = Math.min(Math.max(percentage, 0), 100);
+                document.getElementById("progressPercent").textContent =
+                    percentage + "%";
+                document.getElementById("progressFill").style.width =
+                    pct + "%";
+
+                // Last fetch time.
+                if (data.last_fetched) {
+                    const date = new Date(data.last_fetched);
+                    document.getElementById("lastFetched").textContent =
+                        date.toLocaleString("en-IN", {
+                            dateStyle: "medium",
+                            timeStyle: "medium"
+                        });
+                }
+
+                // Status chip.
+                setStatus("Live Data Synced", true);
+
+                // Render table.
+                renderTable(allResults);
+
+            } catch (err) {
+                console.error(err);
+                setStatus("Connection Error", false);
+                showError("Unable to fetch data from SIH server. Please try refreshing.");
+            }
+        }
+
+
+        /* ── Refresh ───────────────────────────────────────── */
+
+        async function refreshData() {
+            const button = document.getElementById("refreshButton");
+            const icon = document.getElementById("refreshIcon");
+            const btnText = document.getElementById("refreshBtnText");
+
+            button.disabled = true;
+            if (icon) icon.classList.add("spinning");
+            if (btnText) btnText.textContent = "Refreshing...";
+
+            try {
+                const response = await fetch("/api/refresh", { method: "POST" });
+                const result = await response.json();
+
+                if (!result.success) {
+                    throw new Error(result.error || "Failed to update cache");
+                }
+
+                await loadDashboard();
+
+            } catch (error) {
+                console.error(error);
+                showError("Failed to refresh SIH data: " + error.message);
+            } finally {
+                button.disabled = false;
+                if (icon) icon.classList.remove("spinning");
+                if (btnText) btnText.textContent = "Refresh Data";
+            }
+        }
+
+
+        /* ── Table Rendering ───────────────────────────────── */
+
+        function renderTable(data) {
+            const tbody = document.getElementById("tableBody");
+
+            if (!data || !data.length) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="3" class="empty">
+                            <span class="material-symbols-rounded">search_off</span>
+                            No matching Problem Statements found
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            // Maximum submissions for relative visual indicator.
+            const maxSubmissions = Math.max(
+                ...allResults.map(item => item.submitted),
+                1
+            );
+
+            tbody.innerHTML = data.map((item, index) => {
+                let width = 0;
+                if (maxSubmissions > 0 && item.submitted > 0) {
+                    width = Math.max((item.submitted / maxSubmissions) * 100, 2);
+                    width = Math.min(width, 100);
+                }
+                const isTarget = String(item.id) === TARGET_PS;
+
+                return `
+                    <tr class="${isTarget ? "target-row" : ""}">
+                        <td class="rank-cell">
+                            <span class="rank-pill">${index + 1}</span>
+                        </td>
+                        <td>
+                            <span class="ps-id-text">
+                                PS ${escapeHtml(item.id)}
+                                ${isTarget
+                                    ? `<span class="target-badge">
+                                           <span class="material-symbols-rounded filled" style="font-size: 13px;">star</span>
+                                           TARGET
+                                       </span>`
+                                    : ""
+                                }
+                            </span>
+                        </td>
+                        <td class="submission-cell">
+                            <div class="submission-container">
+                                <span class="submission-count">${formatNumber(item.submitted)}</span>
+                                <div class="submission-bar" title="${formatNumber(item.submitted)} submissions (${width.toFixed(1)}% of max)">
+                                    <div class="submission-fill" style="width: ${width.toFixed(1)}%;"></div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join("");
+        }
+
+
+        /* ── Search ────────────────────────────────────────── */
+
+        document.getElementById("searchInput").addEventListener("input", function () {
+            const query = this.value.trim().toLowerCase();
+            const filtered = allResults.filter(item =>
+                String(item.id).toLowerCase().includes(query)
+            );
+            renderTable(filtered);
+        });
+
+
+        /* ── Status ────────────────────────────────────────── */
+
+        function setStatus(text, live) {
+            const statusText = document.getElementById("statusText");
+            const statusDot = document.getElementById("statusDot");
+            if (statusText) statusText.textContent = text;
+            if (statusDot) statusDot.classList.toggle("live", live);
+        }
+
+
+        /* ── Error ─────────────────────────────────────────── */
+
+        function showError(message) {
+            const box = document.getElementById("errorBox");
+            const text = document.getElementById("errorMessageText");
+            if (text) text.textContent = message;
+            if (box) box.style.display = "flex";
+        }
+
+
+        /* ── Helpers ───────────────────────────────────────── */
+
+        function formatNumber(number) {
+            return Number(number).toLocaleString("en-IN");
+        }
+
+        function escapeHtml(value) {
+            return String(value)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+
+        /* ── Start ─────────────────────────────────────────── */
+
+        loadDashboard();
+
+    </script>
+
+</body>
+
+</html>
